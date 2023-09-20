@@ -21,6 +21,7 @@ resolutions.
       - [Docker Proxy Use](#docker-proxy-use)
     - [Troubleshooting Rust Installation](#troubleshooting-rust-installation)
 
+
 ## Install Prerequisites
 
 We need a couple of things before we are ready to build. To set up this workspace,
@@ -72,6 +73,10 @@ Hello, world!
 If you see the `Hello, world!` message, your Rust installation is complete!
 
 ### SIMICS
+
+**NOTE**: Internal (Intel) users should follow the [Internal SIMICS
+*Setup](./InternalSimicsSetup.md) guide for this section, then skip to the
+*[build](#build-the-fuzzer) section.
 
 When building this software, you will need a working SIMICS installation. This document
 will walk you through this installation and configuration of this software to utilize

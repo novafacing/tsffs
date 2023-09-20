@@ -1,0 +1,218 @@
+---
+# SDL task names take the form "<task_id> ([NE]/(NA|C|I|IP)) - <task_description>" where:
+# - N: No evidence required
+# - E: Evidence required
+# - NA: Not Applicable
+# - C: Complete
+# - I: Incomplete
+# - IP: In Progress
+#
+# List of SDL tasks that are NOT checked by this pipeline:
+# - CT636: Trade compliance classification: Published free of nonstandard crypto
+# - CT52: Obtain Open Source PBT Approval
+# - CT38: Conduct security progress reviews
+# - CT36: Register SW components in OneBOM
+# - CT25: Perform gap analysis on SDL plan
+# - CT23: Disposition security vulnerabilities
+# - CT22: Conduct manual code reviews
+# - CT47: Complete a risk assessment for reused components
+
+name: CI
+
+on:
+    push:
+        branches: ["main"]
+    pull_request:
+        branches: ["main"]
+
+env:
+    CARGO_TERM_COLOR: always
+
+    # Simics base
+    SIMICS_PUBLIC_PACKAGE_VERSION_1000: 6.0.172
+    # QSP X86
+    SIMICS_PUBLIC_PACKAGE_VERSION_2096: 6.0.70
+    # QSP CPU
+    SIMICS_PUBLIC_PACKAGE_VERSION_8112: 6.0.17
+
+jobs:
+    build_and_test:
+        name: Build and Test
+        strategy:
+            matrix:
+                simics_version: [
+                        "6.0.163",
+                        "6.0.164",
+                        "6.0.165",
+                        "6.0.166",
+                        "6.0.167",
+                        "6.0.168",
+                        "6.0.169",
+                        "6.0.170",
+                        "6.0.171",
+                        "6.0.172"
+                    ]
+        container: cache-registry.caas.intel.com/cache/library/ubuntu
+        runs-on: [self-hosted, gasp]
+        steps:
+            - name: Install Dependencies
+              shell: bash
+              run: |
+                  apt-get -y update && \
+                  apt-get -y install \
+                    git \
+                    curl \
+                    build-essential \
+                    cmake
+            - uses: actions/checkout@v3
+            - name: Install Rust Toolchain
+              shell: bash
+              run: |
+                  curl https://sh.rustup.rs -sSf \
+                  | sh -s -- -y --default-toolchain nightly --component rustfmt \
+                    --component clippy --component miri --no-modify-path
+            - name: Install SIMICS (Internal)
+              shell: bash
+              run: |
+                  mkdir -p "${HOME}/simics/ispm"
+
+                  curl -o "${HOME}/simics/ispm-internal-latest-linux64.tar.gz" \
+                    "https://af01p-sc.devtools.intel.com/artifactory/simics-repos/pub/simics-installer/intel-internal/ispm-internal-latest-linux64.tar.gz"
+
+                  tar -C "${HOME}/simics/ispm" --strip-components=1 \
+                    -xvf "${HOME}/simics/ispm-internal-latest-linux64.tar.gz"
+
+                  {
+                    echo "1000 ${{ secrets.SIMICS_PUBLIC_PACKAGE_KEY_1000 }}";
+                    echo "2096 ${{ secrets.SIMICS_PUBLIC_PACKAGE_KEY_2096 }}";
+                    echo "8112 ${{ secrets.SIMICS_PUBLIC_PACKAGE_KEY_8112 }}";
+                  } > "${HOME}/simics/SIMICS-PUBLIC-PACKAGE-DECRYPTION-KEY-FILE"
+
+                  "${HOME}/simics/ispm/ispm" settings \
+                    --config-file "${HOME}/simics/ispm.conf" decryption-key-files \
+                    --add "${HOME}/simics/SIMICS-PUBLIC-PACKAGE-DECRYPTION-KEY-FILE"
+
+                  "${HOME}/simics/ispm/ispm" \
+                    --config-file "${HOME}/simics/ispm.conf" \
+                    --non-interactive \
+                    --verbose \
+                    --package-repo https://af01p-sc.devtools.intel.com/artifactory/simics-repos/pub/simics-6/linux64/ \
+                    --install-dir "${HOME}/simics" \
+                    install \
+                    1000-${{ env.SIMICS_PUBLIC_PACKAGE_VERSION_1000 }} \
+                    2096-${{ env.SIMICS_PUBLIC_PACKAGE_VERSION_2096 }} \
+                    8112-${{ env.SIMICS_PUBLIC_PACKAGE_VERSION_8112 }}
+            - name: Set up .env
+              shell: bash
+              run: |
+                  echo "SIMICS_HOME=${HOME}/simics" > .env
+            - name: Build Project
+              run: |
+                  [ -f "/__w/_temp/_github_workflow/event.json" ] && export GITHUB_EVENT_PATH=/__w/_temp/_github_workflow/event.json
+                  "${HOME}/.cargo/bin/cargo" build --features=${{ matrix.simics_version }}
+            - name: Check Project
+              run: |
+                  [ -f "/__w/_temp/_github_workflow/event.json" ] && export GITHUB_EVENT_PATH=/__w/_temp/_github_workflow/event.json
+                  "${HOME}/.cargo/bin/cargo" clippy --features=${{ matrix.simics_version}}
+            - name: Test Project
+              run: |
+                  [ -f "/__w/_temp/_github_workflow/event.json" ] && export GITHUB_EVENT_PATH=/__w/_temp/_github_workflow/event.json
+                  "${HOME}/.cargo/bin/cargo" test --features=${{ matrix.simics_version }} || ( echo "❗ Tests failed for SIMICS version ${{ matrix.simics_version }}" && exit 1 )
+                  echo "✅ Tests passed for SIMICS version ${{ matrix.simics_version }}"
+            - name: (T157, T375, T300) (N/C) - Temporary files must be cleaned up after the resource is used, Release resources when no longer needed, Test that temporary files are cleaned up after the resource is used
+              run: |
+                  [ -f "/__w/_temp/_github_workflow/event.json" ] && export GITHUB_EVENT_PATH=/__w/_temp/_github_workflow/event.json
+                  "${HOME}/.cargo/bin/cargo" test --manifest-path util/tmp-dir/Cargo.toml \
+                    || ( echo "❗ [T157] tmp-dir tests failed" && exit 1 )
+                  echo "✅ [T157] tmp-dir tests pass"
+                  echo "✅ [T375] Temporary file/directory resources are released, see T157 test results"
+                  echo "✅ [T375] LibAFL Shared memory resources are released via clean shutdown in with ::send_exiting"
+                  echo "✅ [T300] Temporary files are cleaned up. See T157."
+            - name: (T297, T162, T572, T595)  (N/C) - Verify that target pathname is validated before retrieving local resources, Validate pathname before retrieving local resources, Check for symlinks before opening files, Test that your application checks for symlinks before opening files
+              run: |
+                  [ -f "/__w/_temp/_github_workflow/event.json" ] && export GITHUB_EVENT_PATH=/__w/_temp/_github_workflow/event.json
+                  "${HOME}/.cargo/bin/cargo" test --features=${{ matrix.simics_version }} --manifest-path simics-tests/Cargo.toml path \
+                    || ( echo "❗ [T297] Simics path tests failed" && exit 1 )
+                  echo "✅ [T297] Simics path tests passed (tests check pathname validation)"
+                  echo "✅ [T162] Simics path tests passed (tests check pathname validation)"
+                  echo "✅ [T572] File paths are canonicalized/normalized before opening. See T297."
+                  echo "✅ [T595] Symlinks are checked before using files. See T297."
+            - name: Build Docs
+              run: |
+                  [ -f "/__w/_temp/_github_workflow/event.json" ] && export GITHUB_EVENT_PATH=/__w/_temp/_github_workflow/event.json
+                  "${HOME}/.cargo/bin/cargo" doc --features=${{ matrix.simics_version }}
+            - name: Test Docs
+              run: |
+                  [ -f "/__w/_temp/_github_workflow/event.json" ] && export GITHUB_EVENT_PATH=/__w/_temp/_github_workflow/event.json
+                  "${HOME}/.cargo/bin/cargo" test --doc --features=${{ matrix.simics_version }}
+
+    static_analysis:
+        name: Run Static Analysis
+        container: cache-registry.caas.intel.com/cache/library/ubuntu
+        runs-on: [self-hosted, gasp]
+        steps:
+            - name: Install Dependencies
+              shell: bash
+              run: |
+                  apt-get -y update && \
+                  apt-get -y install \
+                    git \
+                    curl \
+                    build-essential \
+                    cmake
+            - uses: actions/checkout@v3
+            - name: Install Rust Toolchain
+              shell: bash
+              run: |
+                  curl https://sh.rustup.rs -sSf \
+                  | sh -s -- -y --default-toolchain nightly --component rustfmt \
+                    --component clippy --component miri --no-modify-path
+            - name: Install SIMICS (Internal)
+              shell: bash
+              run: |
+                  mkdir -p "${HOME}/simics/ispm"
+
+                  curl -o "${HOME}/simics/ispm-internal-latest-linux64.tar.gz" \
+                    "https://af01p-sc.devtools.intel.com/artifactory/simics-repos/pub/simics-installer/intel-internal/ispm-internal-latest-linux64.tar.gz"
+
+                  tar -C "${HOME}/simics/ispm" --strip-components=1 \
+                    -xvf "${HOME}/simics/ispm-internal-latest-linux64.tar.gz"
+
+                  {
+                    echo "1000 ${{ secrets.SIMICS_PUBLIC_PACKAGE_KEY_1000 }}";
+                    echo "2096 ${{ secrets.SIMICS_PUBLIC_PACKAGE_KEY_2096 }}";
+                    echo "8112 ${{ secrets.SIMICS_PUBLIC_PACKAGE_KEY_8112 }}";
+                  } > "${HOME}/simics/SIMICS-PUBLIC-PACKAGE-DECRYPTION-KEY-FILE"
+
+                  "${HOME}/simics/ispm/ispm" settings \
+                    --config-file "${HOME}/simics/ispm.conf" decryption-key-files \
+                    --add "${HOME}/simics/SIMICS-PUBLIC-PACKAGE-DECRYPTION-KEY-FILE"
+
+                  "${HOME}/simics/ispm/ispm" \
+                    --config-file "${HOME}/simics/ispm.conf" \
+                    --non-interactive \
+                    --verbose \
+                    --package-repo https://af01p-sc.devtools.intel.com/artifactory/simics-repos/pub/simics-6/linux64/ \
+                    --install-dir "${HOME}/simics" \
+                    install \
+                    1000-${{ env.SIMICS_PUBLIC_PACKAGE_VERSION_1000 }} \
+                    2096-${{ env.SIMICS_PUBLIC_PACKAGE_VERSION_2096 }} \
+                    8112-${{ env.SIMICS_PUBLIC_PACKAGE_VERSION_8112 }}
+            - name: Set up .env
+              shell: bash
+              run: |
+                  echo "SIMICS_HOME=${HOME}/simics" > .env
+            - name: CT39 - Clippy Check Project
+              run: |
+                  [ -f "/__w/_temp/_github_workflow/event.json" ] && export GITHUB_EVENT_PATH=/__w/_temp/_github_workflow/event.json
+                  "${HOME}/.cargo/bin/cargo" clippy --features=${{ env.SIMICS_PUBLIC_PACKAGE_VERSION_1000 }} \
+                    || ( echo "❗ [CT39 (1/2)] Failed clippy static analysis checks" && exit 1 )
+                  echo "✅ [CT39 (1/2)] Passed clippy static analysis checks"
+            - name: CT39 - MIRI Check Project
+              run: |
+                  [ -f "/__w/_temp/_github_workflow/event.json" ] && export GITHUB_EVENT_PATH=/__w/_temp/_github_workflow/event.json
+                  "${HOME}/.cargo/bin/cargo" clippy --features=${{ env.SIMICS_PUBLIC_PACKAGE_VERSION_1000 }}
+                  MIRIFLAGS="-Zmiri-backtrace=full -Zmiri-disable-isolation -Zmiri-panic-on-unsupported" "${HOME}/.cargo/bin/cargo" \
+                    miri test --features=${{ env.SIMICS_PUBLIC_PACKAGE_VERSION_1000 }} \
+                    || ( echo "❗ [CT39 (2/2)] Failed MIRI static analysis checks" && exit 1 )
+                  echo "✅ [CT39 (2/2)] Passed MIRI static analysis checks"
