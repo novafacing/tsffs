@@ -52,5 +52,5 @@ jobs:
             "beta/${{ github.sha }}" \
             --repo "${{ github.repository }}" \
             --title "Beta Release ${{ github.sha }}" \
-            "${LINUX64_NAME}" \
-            "${WIN64_NAME}"
+            "${LINUX64_NAME}/${LINUX64_NAME}" \
+            "${WIN64_NAME}/${WIN4_NAME}"
