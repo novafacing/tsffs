@@ -58,11 +58,17 @@ jobs:
           cat <<'EOF' > release-notes
           # Beta Release ${{ github.sha }}
 
-          This is an automated beta release, published on every push to the repository
-          main branch. You can install the latest release using
-          [ISPM](https://goto.intel.com/simics) by uninstalling your current TSFFS
-          package (if you have one installed) then installing the new package with (on
-          Linux):
+          Beta releases of TSFFS are compatible with versions of SIMICS base (package number 1000) at least the latest version of public SIMICS:
+          EOF
+
+          echo '`>='"$(grep -oP 'PUBLIC_SIMICS_PACKAGE_VERSION_1000: "\K(.*)(?=")' .github/workflows/ci.yml)"'`' >> release-notes
+
+          cat <<'EOF' >> release-notes
+
+          This is an automated beta release, published on every push to the repository main branch. 
+          You can install the latest release using [ISPM](https://goto.intel.com/simics) by uninstalling your current TSFFS package (if you have one installed) then installing the new package with.
+
+          On Linux:
 
           ```sh
           EOF
@@ -78,15 +84,15 @@ jobs:
           ```powershell
           EOF
 
-          echo "ispm packages -u 31337-$(toml get -r Cargo.toml workspace.metadata.version)" >> release-notes
-          echo "ispm packages -i ${WIN64_NAME} --trust-insecure-packages" >> release-notes
+          echo "ispm.exe packages -u 31337-$(toml get -r Cargo.toml workspace.metadata.version)" >> release-notes
+          echo "ispm.exe packages -i ${WIN64_NAME} --trust-insecure-packages" >> release-notes
 
           cat <<'EOF' >> release-notes
+          ```
 
-          Please test the new release and file any non-IC/ITS issues in the
-          [public repository](https://github.com/intel/tsffs).
+          Please test the new release and file any non-IC/ITS issues in the [public repository](https://github.com/intel/tsffs).
+          IC issues can be filed in this repository, and ITS issues can be emailed to the maintainers.
           EOF
-
 
           gh release create \
             "beta/${{ github.sha }}" \
