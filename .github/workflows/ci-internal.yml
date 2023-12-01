@@ -45,6 +45,11 @@ jobs:
             https://api.github.com/repos/intel/tsffs/actions/artifacts \
             | jq 'first(.artifacts[] | select(.name | endswith("win64.ispm"))).name')"
 
+          echo "linux64 url: ${LINUX64_URL}"
+          echo "linux64 name: ${LINUX64_NAME}"
+          echo "win64 url: ${WIN64_URL}"
+          echo "win64 name: ${WIN64_NAME}"
+
           curl \
             -L \
             -o "${LINUX64_NAME}" \
