@@ -25,25 +25,25 @@ jobs:
             -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
             -H 'X-GitHub-Api-Version: 2022-11-28' \
             https://api.github.com/repos/intel/tsffs/actions/artifacts \
-            | jq 'first(.artifacts[] | select(.name | endswith("linux64.ispm"))).archive_download_url')"
+            | jq -r 'first(.artifacts[] | select(.name | endswith("linux64.ispm"))).archive_download_url')"
           LINUX64_NAME="$(curl \
             -H 'Accept: application/vnd.github+json' \
             -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
             -H 'X-GitHub-Api-Version: 2022-11-28' \
             https://api.github.com/repos/intel/tsffs/actions/artifacts \
-            | jq 'first(.artifacts[] | select(.name | endswith("linux64.ispm"))).name')"
+            | jq -r 'first(.artifacts[] | select(.name | endswith("linux64.ispm"))).name')"
           WIN64_URL="$(curl \
             -H 'Accept: application/vnd.github+json' \
             -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
             -H 'X-GitHub-Api-Version: 2022-11-28' \
             https://api.github.com/repos/intel/tsffs/actions/artifacts \
-            | jq 'first(.artifacts[] | select(.name | endswith("win64.ispm"))).archive_download_url')"
+            | jq -r 'first(.artifacts[] | select(.name | endswith("win64.ispm"))).archive_download_url')"
           WIN64_NAME="$(curl \
             -H 'Accept: application/vnd.github+json' \
             -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
             -H 'X-GitHub-Api-Version: 2022-11-28' \
             https://api.github.com/repos/intel/tsffs/actions/artifacts \
-            | jq 'first(.artifacts[] | select(.name | endswith("win64.ispm"))).name')"
+            | jq -r 'first(.artifacts[] | select(.name | endswith("win64.ispm"))).name')"
 
           echo "linux64 url: ${LINUX64_URL}"
           echo "linux64 name: ${LINUX64_NAME}"
