@@ -5,14 +5,13 @@ on:
   push:
     branches: ["main"]
 
-env:
-  GITHUB_TOKEN: ${{ secrets.TOKEN }}
-
 jobs:
   publish_packages:
     name: Build and Test
     container: cache-registry.caas.intel.com/cache/library/ubuntu
     runs-on: [self-hosted, gasp]
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Install Dependencies
         run: |
