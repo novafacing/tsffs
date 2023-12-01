@@ -51,8 +51,6 @@ jobs:
           gh release create \
             "beta/${{ github.sha }}" \
             --repo "${{ github.repository }}" \
-            --latest \
-            --notes-from-tag \
             --title "Beta Release ${{ github.sha }}" \
             "${LINUX64_NAME}" \
             "${WIN64_NAME}"
