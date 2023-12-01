@@ -54,12 +54,12 @@ jobs:
             -L \
             -o "${LINUX64_NAME}" \
             -H 'Accept: application/vnd.github+json' \
-            -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}'
+            -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
             "${LINUX64_URL}"
 
           curl \
             -L \
             -o "${WIN64_NAME}" \
             -H 'Accept: application/vnd.github+json' \
-            -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}'
+            -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
             "${WIN64_URL}"
