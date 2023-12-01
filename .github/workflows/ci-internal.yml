@@ -20,11 +20,14 @@ jobs:
             curl \
             gh \
             git \
-            jq
+            jq && \
+            curl -o toml-0.2.3-x86_64-linux.tar.gz && \
+            tar -C /usr/bin --strip-components=1 -xvf \
+              toml-0.2.3-x86_64-linux.tar.gz toml-0.2.3-x86_64-linux/toml
 
       - uses: actions/checkout@v3
 
-      - name: Download Artifacts
+      - name: Download and Publish Artifacts
         run: |
           ARTIFACT_RUNID="$(gh api \
             -H 'Accept: application/vnd.github+json' \
@@ -51,9 +54,31 @@ jobs:
 
           mv assets/*/*.ispm release-assets
 
+          cat <<EOF > release-notes
+          # Beta Release ${{ github.sha }}
+
+          This is an automated beta release, published on every push to the repository
+          main branch. You can install the latest release using
+          [ISPM](https://goto.intel.com/simics) by uninstalling your current TSFFS
+          package (if you have one installed) then installing the new package with:
+
+          ```sh
+          EOF
+
+          echo "ispm packages -u 31337-$(toml get -r Cargo.toml workspace.metadata.version)" >> release-notes
+          echo "ispm packages -i ${LINUX64_NAME} --trust-insecure-packages" >> release-notes
+
+          cat <<EOF >> release-notes
+          ```
+
+          Please test the new release and file any non-IC/ITS issues in the
+          [public repository](https://github.com/intel/tsffs).
+          EOF
+
 
           gh release create \
             "beta/${{ github.sha }}" \
             --repo "${{ github.repository }}" \
             --title "Beta Release ${{ github.sha }}" \
+            --notes-file release-notes \
             release-assets/*
