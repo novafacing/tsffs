@@ -55,7 +55,7 @@ jobs:
 
           mv assets/*/*.ispm release-assets
 
-          cat <<EOF > release-notes
+          cat <<'EOF' > release-notes
           # Beta Release ${{ github.sha }}
 
           This is an automated beta release, published on every push to the repository
@@ -70,7 +70,7 @@ jobs:
           echo "ispm packages -u 31337-$(toml get -r Cargo.toml workspace.metadata.version)" >> release-notes
           echo "ispm packages -i ${LINUX64_NAME} --trust-insecure-packages" >> release-notes
 
-          cat <<EOF >> release-notes
+          cat <<'EOF' >> release-notes
           ```
 
           Or on Windows:
@@ -81,7 +81,7 @@ jobs:
           echo "ispm packages -u 31337-$(toml get -r Cargo.toml workspace.metadata.version)" >> release-notes
           echo "ispm packages -i ${WIN64_NAME} --trust-insecure-packages" >> release-notes
 
-          cat <<EOF >> release-notes
+          cat <<'EOF' >> release-notes
 
           Please test the new release and file any non-IC/ITS issues in the
           [public repository](https://github.com/intel/tsffs).
