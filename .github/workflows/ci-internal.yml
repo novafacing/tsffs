@@ -42,17 +42,18 @@ jobs:
             /repos/intel/tsffs/actions/artifacts \
             | jq -r 'first(.artifacts[] | select(.name | endswith("win64.ispm"))).name')"
 
-          mkdir -p assets
+          mkdir -p assets release-assets
 
           gh run download \
             --repo "intel/tsffs" \
             --dir assets \
             "${ARTIFACT_RUNID}"
 
-          mv assets/*/*.ispm assets/
+          mv assets/*/*.ispm release-assets
+
 
           gh release create \
             "beta/${{ github.sha }}" \
             --repo "${{ github.repository }}" \
             --title "Beta Release ${{ github.sha }}" \
-            assets/*.ispm
+            release-assets/*
