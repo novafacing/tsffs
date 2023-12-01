@@ -60,7 +60,8 @@ jobs:
           This is an automated beta release, published on every push to the repository
           main branch. You can install the latest release using
           [ISPM](https://goto.intel.com/simics) by uninstalling your current TSFFS
-          package (if you have one installed) then installing the new package with:
+          package (if you have one installed) then installing the new package with (on
+          Linux):
 
           ```sh
           EOF
@@ -70,6 +71,16 @@ jobs:
 
           cat <<EOF >> release-notes
           ```
+
+          Or on Windows:
+
+          ```powershell
+          EOF
+
+          echo "ispm packages -u 31337-$(toml get -r Cargo.toml workspace.metadata.version)" >> release-notes
+          echo "ispm packages -i ${WIN64_NAME} --trust-insecure-packages" >> release-notes
+
+          cat <<EOF >> release-notes
 
           Please test the new release and file any non-IC/ITS issues in the
           [public repository](https://github.com/intel/tsffs).
