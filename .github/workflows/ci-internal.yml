@@ -7,7 +7,7 @@ on:
 
 jobs:
   publish_packages:
-    name: Build and Test
+    name: Publish Release
     container: cache-registry.caas.intel.com/cache/library/ubuntu
     runs-on: [self-hosted, gasp]
     env:
@@ -43,6 +43,7 @@ jobs:
             | jq -r 'first(.artifacts[] | select(.name | endswith("win64.ispm"))).name')"
 
           gh run download \
+            --repo "intel/tsffs" \
             -n "${LINUX64_NAME}" \
             -n "${WIN64_NAME}" \
             "${ARTIFACT_RUNID}"
