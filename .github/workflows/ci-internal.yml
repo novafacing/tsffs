@@ -21,7 +21,8 @@ jobs:
             gh \
             git \
             jq && \
-            curl -o toml-0.2.3-x86_64-linux.tar.gz && \
+            curl -L -o toml-0.2.3-x86_64-linux.tar.gz \
+              https://github.com/gnprice/toml-cli/releases/download/v0.2.3/toml-0.2.3-x86_64-linux.tar.gz && \
             tar -C /usr/bin --strip-components=1 -xvf \
               toml-0.2.3-x86_64-linux.tar.gz toml-0.2.3-x86_64-linux/toml
 
