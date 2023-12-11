@@ -229,7 +229,7 @@ impl Tsffs {
             self.start_fuzzer_thread()?;
         }
         let testcase = self.get_testcase()?;
-        *self.cmplog_enabled_mut() = *testcase.cmplog();
+        *self.cmplog_enabled_mut() = testcase.cmplog_deref();
         trace!(
             self.as_conf_object(),
             "Coverage hash (before): {:#x}",
@@ -245,7 +245,7 @@ impl Tsffs {
             ManualStart::builder().processor(cpu).build(),
         ))?;
 
-        testcase.testcase().clone().try_into()
+        testcase.testcase_clone().try_into()
     }
 
     /// Interface method to manually signal to stop a testcase execution. When this
@@ -406,15 +406,19 @@ impl Tsffs {
     /// directory without calling `set_generate_random_corpus(True)`.  If not provided,
     /// "%simics%/corpus" will be used by default.
     pub fn set_corpus_directory(&mut self, corpus_directory: *mut c_char) -> Result<()> {
-        let corpus_directory = lookup_file(unsafe { CStr::from_ptr(corpus_directory) }.to_str()?)?;
+        let corpus_directory_path = unsafe { CStr::from_ptr(corpus_directory) }.to_str()?;
 
-        debug!(
-            self.as_conf_object(),
-            "set_corpus_directory({})",
-            corpus_directory.display(),
-        );
+        if let Ok(corpus_directory) = lookup_file(corpus_directory_path) {
+            debug!(
+                self.as_conf_object(),
+                "set_corpus_directory({})",
+                corpus_directory.display(),
+            );
 
-        *self.configuration_mut().corpus_directory_mut() = corpus_directory;
+            *self.configuration_mut().corpus_directory_mut() = corpus_directory;
+        } else {
+            error!(self.as_conf_object(), "Corpus directory cannot be set. The requested directory {corpus_directory_path} does not exist.");
+        }
 
         Ok(())
     }
@@ -425,16 +429,19 @@ impl Tsffs {
     /// and traige defects using the `reproduce` method. If no solutions directory is provided,
     /// "%simics%/solutions" will be used by default.
     pub fn set_solutions_directory(&mut self, solutions_directory: *mut c_char) -> Result<()> {
-        let solutions_directory =
-            lookup_file(unsafe { CStr::from_ptr(solutions_directory) }.to_str()?)?;
+        let solutions_directory_path = unsafe { CStr::from_ptr(solutions_directory) }.to_str()?;
 
-        debug!(
-            self.as_conf_object(),
-            "set_solutions_directory({})",
-            solutions_directory.display()
-        );
+        if let Ok(solutions_directory) = lookup_file(solutions_directory_path) {
+            debug!(
+                self.as_conf_object(),
+                "set_solutions_directory({})",
+                solutions_directory.display(),
+            );
 
-        *self.configuration_mut().solutions_directory_mut() = solutions_directory;
+            *self.configuration_mut().solutions_directory_mut() = solutions_directory;
+        } else {
+            error!(self.as_conf_object(), "Solutions directory cannot be set. The requested directory {solutions_directory_path} does not exist.");
+        }
 
         Ok(())
     }
@@ -466,7 +473,7 @@ impl Tsffs {
     }
 
     pub fn get_configuration(&mut self) -> Result<attr_value_t> {
-        let value: AttrValueType = self.configuration().clone().try_into()?;
+        let value: AttrValueType = self.configuration_clone().try_into()?;
         Ok(AttrValue::try_from(value)?.into())
     }
 
@@ -590,7 +597,7 @@ impl Tsffs {
 
         *self.repro_testcase_mut() = Some(contents);
 
-        if *self.iterations() > 0 {
+        if self.iterations_deref() > 0 {
             // We've done an iteration already, so we need to reset and run
             self.restore_initial_snapshot()?;
             self.get_and_write_testcase()?;

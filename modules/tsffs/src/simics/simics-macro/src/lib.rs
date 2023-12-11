@@ -1092,6 +1092,7 @@ pub fn interface_impl(args: TokenStream, input: TokenStream) -> TokenStream {
         }
 
         #[derive(Debug)]
+        #[repr(C)]
         pub struct #internal_interface_name {
             #(#internal_interface_fields),*
         }
@@ -1235,7 +1236,8 @@ impl TryIntoAttrValueTypeDictOpts {
             .filter_map(|f| {
                 f.ident.clone().map(|i| {
                     let ident_name = i.to_string();
-                    quote!((#ident_name.try_into()?, value.#i().clone().try_into()?))
+                    let accessor = format_ident!("{}_ref", i);
+                    quote!((#ident_name.try_into()?, value.#accessor().clone().try_into()?))
                 })
             })
             .collect::<Vec<_>>();
@@ -1301,9 +1303,10 @@ impl TryIntoAttrValueTypeListOpts {
             .iter()
             .filter(|f| !f.skip.is_present())
             .filter_map(|f| {
-                f.ident
-                    .clone()
-                    .map(|i| quote!(value.#i().clone().try_into()?))
+                f.ident.clone().map(|i| {
+                    let accessor = format_ident!("{}_ref", i);
+                    quote!(value.#accessor().clone().try_into()?)
+                })
             })
             .collect::<Vec<_>>();
 
