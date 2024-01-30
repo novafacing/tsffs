@@ -116,7 +116,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: amr-registry.caas.intel.com
-          username: robot$tsffs+tsffs_ga_bot
+          username: ${{ secrets.HARBOR_USERNAME}}
           password: ${{ secrets.HARBOR_PAT }}
 
       - name: Build and push
