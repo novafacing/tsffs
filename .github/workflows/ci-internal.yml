@@ -103,7 +103,7 @@ jobs:
 
   publish_harbor:
     name: Publish Docker image to Harbor
-    runs-on: [a4bf011d34a4]
+    runs-on: [really-self-hosted]
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
