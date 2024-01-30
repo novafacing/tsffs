@@ -8,7 +8,7 @@ jobs:
     container: cache-registry.caas.intel.com/cache/library/ubuntu
     steps:
       - name: Slash Command Dispatch
-        uses: peter-evans/slash-command-dispatch@13bc09769d122a64f75aa5037256f6f2d78be8c4 #v4
+        uses: intel-innersource/applications.security.fuzzing.tsffs@slash-command-dispatch
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commands: fuzzed
