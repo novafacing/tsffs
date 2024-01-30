@@ -1,0 +1,58 @@
+decl {
+param checkpoint : string
+! checkpoint to use (full path)
+
+param solutions : string = "solutions"
+! folder to store solutions in
+
+param corpus : string = "corpus"
+! folder to store corpus in
+
+param timeout : float = 3.0
+! max time to run simulation for
+
+param randomseed : bool = TRUE
+! use random seed for fuzzing
+
+param start : int = 1
+! magic number used for start
+
+param stop : int = 2
+! magic number used for stop
+
+param extra_cmds : string = ""
+! extra SIMICS commands in .simics file to run before starting
+
+param loglevel : int = 0
+! loglevel to use while fuzzing
+}
+
+@corpus_path = simenv.corpus
+@solutions_path = simenv.solutions
+@timeout = simenv.timeout
+@start = simenv.start
+@stop = simenv.stop
+@loglevel = simenv.loglevel
+@randomseed = simenv.randomseed
+
+load-module tsffs
+@tsffs = SIM_create_object(SIM_get_class("tsffs"), "tsffs", [])
+@tsffs.iface.tsffs.set_start_on_harness(True)
+@tsffs.iface.tsffs.set_stop_on_harness(True)
+@tsffs.iface.tsffs.set_timeout(timeout)
+@tsffs.iface.tsffs.set_corpus_directory(corpus_path)
+@tsffs.iface.tsffs.set_solutions_directory(solutions_path)
+@tsffs.iface.tsffs.set_start_magic_number(start)
+@tsffs.iface.tsffs.set_stop_magic_number(stop)
+@tsffs.iface.tsffs.set_generate_random_corpus(randomseed)
+
+tsffs.log-level $loglevel
+
+read-configuration $checkpoint
+
+if $extra_cmds != "" {
+    run-command-file $extra_cmds
+}
+
+r
+q
