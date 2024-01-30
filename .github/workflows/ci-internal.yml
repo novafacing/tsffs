@@ -109,7 +109,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          docker login -u ${{ secrets.HARBOR_USERNAME }} -p ${{ secrets.HARBOR_PAT }} amr-registry.caas.intel.com
+          docker login -u '${{ secrets.HARBOR_USERNAME }}' -p '${{ secrets.HARBOR_PAT }}' amr-registry.caas.intel.com
           docker build . -t amr-registry.caas.intel.com/tsffs/tsffs
           docker push
 
