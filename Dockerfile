@@ -13,6 +13,8 @@ ENV PATH="/root/.cargo/bin:/workspace/simics/ispm:${PATH}"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
+RUN rm -rf /var/mail /var/spool/mail
+
 # Install local dependencies:
 # - Libraries and dependencies for SIMICS and ISPM
 # - Libraries and dependencies for building a sample UEFI application
