@@ -115,6 +115,7 @@ jobs:
       - name: Login to Harbor
         uses: docker/login-action@v3
         with:
+          registry: amr-registry.caas.intel.com
           username: robot$tsffs+tsffs_ga_bot
           password: ${{ secrets.HARBOR_PAT }}
 
