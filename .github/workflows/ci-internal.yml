@@ -114,6 +114,7 @@ jobs:
           username: ${{ secrets.HARBOR_USERNAME}}
           password: ${{ secrets.HARBOR_PAT }}
           image_name: "tsffs/tsffs"
+          no_cache: "true"
 
       - uses: intel-innersource/frameworks.actions.gasp.kaniko@main
         with:
@@ -122,3 +123,4 @@ jobs:
           image_name: "tsffs/github_action"
           dockerfile: ".github/action/Dockerfile"
           build_context: ".github/action"
+          no_cache: "true"
