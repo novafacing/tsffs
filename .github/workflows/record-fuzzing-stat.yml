@@ -5,6 +5,7 @@ on:
 jobs:
   record-fuzzing-stat:
     runs-on: [self-hosted, gasp]
+    container: cache-registry.caas.intel.com/cache/library/ubuntu
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
