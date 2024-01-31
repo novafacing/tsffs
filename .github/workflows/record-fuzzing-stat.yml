@@ -8,7 +8,7 @@ on:
 
 jobs:
   on-issue-comment-created:
-    if: ${{ github.event.type == "IssueCommentEvent" && github.event.issue.number == 70 }}
+    if: ${{ github.event.type == 'IssueCommentEvent' && github.event.issue.number == 70 }}
     runs-on: [self-hosted, gasp]
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -22,7 +22,7 @@ jobs:
         run: .github/chatops/record-fuzzing-stats.sh "$REPO" "$COMMENTID" "$COMMENT"
 
   record-fuzzing-stats:
-    if: ${{ github.event.type != "IssueCommentEvent" }}
+    if: ${{ github.event.type != 'IssueCommentEvent' }}
     runs-on: [self-hosted, gasp]
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
