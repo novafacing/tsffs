@@ -5,7 +5,7 @@ on:
 jobs:
   record-fuzzing-stat:
     if: ${{ github.event.issue.number == 70 }}
-    runs-on: [really-self-hosted, self-hosted, gasp]
+    runs-on: [really-self-hosted]
     container: cache-registry.caas.intel.com/cache/library/ubuntu
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
