@@ -6,28 +6,24 @@ jobs:
   record-fuzzing-stat:
     if: ${{ github.event.issue.number == 70 }}
     runs-on: [really-self-hosted]
-    container: cache-registry.caas.intel.com/cache/library/ubuntu
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      HTTPS_PROXY: http://proxy-chain.intel.com:912
     steps:
       - name: setup
         run: |
-          apt-get update
-          apt-get -y install gh git
           git config --global user.name '${{ github.actor }}'
           git config --global user.email '${{ github.actor }}@github.com'
 
-      - name: checkout
-        run: gh repo clone ${{ github.event.repository.full_name }} gh-pages -- --branch='gh-pages'
+      - uses: actions/checkout@v4
+        with:
+          ref: 'gh-pages'
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: log data from comment
         shell: bash
         env:
           COMMENT: ${{ github.event.issue_comment.comment.body }}
         run: |
-          cd gh-pages
-
           LOOP=1
           INPUT=$(echo "$COMMENT" | awk '{ print NF; exit }')
 
