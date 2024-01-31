@@ -18,6 +18,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: install deps
+        run: apt-get update && apt-get install -y git gh
+
       - name: Record data from issue comment event
         run: .github/chatops/record-fuzzing-stats.sh "$REPO" "$COMMENTID" "$COMMENT"
 
@@ -29,6 +32,9 @@ jobs:
       REPO: ${{ github.event.repository.full_name }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: install deps
+        run: apt-get update && apt-get install -y git gh
 
       - name: Record data from issue comment event
         run: .github/chatops/record-fuzzing-stats.sh "$REPO" "all"

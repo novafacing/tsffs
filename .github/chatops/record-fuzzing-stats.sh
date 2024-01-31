@@ -32,6 +32,7 @@ parse_comment() {
     [[ -z $RUNTIME ]] && return 1
 
     DATE=$(date -d @$DATE)
+    echo "${REPO},${DATE},${SOLUTIONS},${RUNTIME}"
     echo "${REPO},${DATE},${SOLUTIONS},${RUNTIME}" >> _data/log.csv
 
     return 0
@@ -52,6 +53,11 @@ process_comment() {
 
 ###############################################################################
 
+git config --global user.name '${{ github.actor }}'
+git config --global user.email '${{ github.actor }}@github.com'
+git fetch origin gh-pages --depth 1
+git checkout gh-pages
+
 if [ "$COMMENTID" != "all" ]; then
     process_comment "$REPO" "$COMMENTID" "$COMMENT"
 else
@@ -68,8 +74,6 @@ else
     done
 fi
 
-git config --global user.name '${{ github.actor }}'
-git config --global user.email '${{ github.actor }}@github.com'
 git add _data/log.csv
 git commit -m "Update stats"
 git push
