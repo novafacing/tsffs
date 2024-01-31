@@ -9,11 +9,13 @@ jobs:
     container: cache-registry.caas.intel.com/cache/library/ubuntu
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      HTTPS_PROXY: http://proxy-chain.intel.com:912
     steps:
       - name: setup
         run: |
           apt-get update
           apt-get -y install gh git
+          echo $GITHUB_TOKEN | gh auth login --with-token
 
       - name: checkout
         run: gh repo clone ${{ github.event.repository.full_name }} gh-pages -- --branch='gh-pages'
