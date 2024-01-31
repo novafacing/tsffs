@@ -21,13 +21,10 @@ jobs:
 
       - name: log data from comment
         shell: bash
-        env:
-          COMMENT: ${{ github.event.comment.body }}
         run: |
           LOOP=1
+          COMMENT=$(echo '${{ github.event.comment.body' }} | tr -dc '[:alnum:]/= ')
           INPUT=$(echo "$COMMENT" | awk '{ print NF; exit }')
-
-          echo "Comment: $COMMENT, inputs: $INPUT"
 
           [[ $(echo "$COMMENT" | awk '{ print $1 }') != "/fuzzed" ]] && echo "No magic command found" && exit 1
           [[ $INPUT -lt 2 ]] && echo "Not enough inputs" && exit 1
