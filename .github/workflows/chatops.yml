@@ -1,0 +1,14 @@
+name: Slash Command Dispatch
+on:
+  issue_comment:
+    types: [created]
+jobs:
+  slashCommandDispatch:
+    runs-on: [self-hosted, gasp]
+    container: cache-registry.caas.intel.com/cache/library/ubuntu
+    steps:
+      - name: Slash Command Dispatch
+        uses: intel-innersource/applications.security.fuzzing.tsffs@slash-command-dispatch
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commands: fuzzed

@@ -1,0 +1,40 @@
+name: record-fuzzing-stat
+on:
+  repository_dispatch:
+    types: [fuzzed-command]
+jobs:
+  record-fuzzing-stat:
+    runs-on: [self-hosted, gasp]
+    container: cache-registry.caas.intel.com/cache/library/ubuntu
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: 'gh-pages'
+
+      - name: log data from comment
+        env:
+          REPO: ${{ github.event.client_payload.slash_command.args.named.repo }}
+          DATE: ${{ github.event.client_payload.slash_command.args.named.date }}
+          SOLUTIONS: ${{ github.event.client_payload.slash_command.args.named.solutions }}
+          RUNTIME: ${{ github.event.client_payload.slash_command.args.named.runtime }}
+        run: |
+          echo "${REPO},${DATE},${SOLUTIONS},${RUNTIME}" >> data/log.csv
+
+          git config --global user.name '${{ github.actor }}'
+          git config --global user.email '${{ github.actor }}@github.com'
+          git add data/log.csv
+          git commit -m "Update stats"
+          git push
+
+      - name: delete comment
+        env:
+          REPO: ${{ github.event.client_payload.github.payload.repository.full_name }}
+          COMMENTID: ${{ github.event.client_payload.github.payload.comment.id }}
+        run: |
+          gh api --method DELETE \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/${REPO}/issues/comments/${COMMENTID}
