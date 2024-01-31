@@ -10,6 +10,11 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
+      - name: setup
+        run: |
+          apt-get update
+          apt-get -y install gh git
+
       - name: checkout
         run: gh repo clone ${{ github.event.repository.full_name }} gh-pages -- --branch='gh-pages'
 
@@ -44,8 +49,6 @@ jobs:
 
       - name: save data
         run: |
-          apt-get update
-          apt-get -y install git
           git config --global user.name '${{ github.actor }}'
           git config --global user.email '${{ github.actor }}@github.com'
           git add _data/log.csv
