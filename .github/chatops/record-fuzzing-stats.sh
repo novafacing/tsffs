@@ -61,17 +61,18 @@ git checkout gh-pages
 if [ "$COMMENTID" != "all" ]; then
     process_comment "$REPO" "$COMMENTID" "$COMMENT"
 else
-    COMMENTS_JSON=$(gh api \
+    echo "Get all comments"
+
+    gh api \
         -H "Accept: application/vnd.github+json" \
         -H "X-GitHub-Api-Version: 2022-11-28" \
-        /repos/${REPO}/issues/${ISSUEID}/comments)
+        /repos/${REPO}/issues/${ISSUEID}/comments |
+    jq '.[]' | jq '. | "\(.id), \(.body)"' | tr -d '"' > data
 
-    for COMMENT_JSON in $(echo "$COMMENTS_JSON" | jq -rc '.[]'); do
-        $COMMENTID = $(echo "$COMMENT_JSON" | jq '.id')
-        $COMMENT = $(echo "$COMMENT_JSON" | jq '.body')
-
+    while IFS="," read -r COMMENTID COMMENT
+    do
         process_comment "$REPO" "$COMMENTID" "$COMMENT"
-    done
+    done < data
 fi
 
 git add _data/log.csv
