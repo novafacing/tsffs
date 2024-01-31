@@ -44,8 +44,8 @@ jobs:
 
       - name: save data
         run: |
-          sudo apt-get update
-          sudo apt-get -y install git
+          apt-get update
+          apt-get -y install git
           git config --global user.name '${{ github.actor }}'
           git config --global user.email '${{ github.actor }}@github.com'
           git add _data/log.csv
