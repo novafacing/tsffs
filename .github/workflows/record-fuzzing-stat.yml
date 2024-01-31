@@ -40,11 +40,11 @@ jobs:
             LOOP=$(( $LOOP + 1 ))
           done
 
-          echo "${REPO},${DATE},${SOLUTIONS},${RUNTIME}" >> data/log.csv
+          echo "${REPO},${DATE},${SOLUTIONS},${RUNTIME}" >> _data/log.csv
 
           git config --global user.name '${{ github.actor }}'
           git config --global user.email '${{ github.actor }}@github.com'
-          git add data/log.csv
+          git add _data/log.csv
           git commit -m "Update stats"
           git push
 
