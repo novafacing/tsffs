@@ -10,6 +10,7 @@ jobs:
   on-issue-comment-created:
     if: ${{ github.event.type == 'IssueCommentEvent' && github.event.issue.number == 70 }}
     runs-on: [self-hosted, gasp]
+    container: cache-registry.caas.intel.com/cache/library/ubuntu
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REPO: ${{ github.event.repository.full_name }}
@@ -17,9 +18,16 @@ jobs:
       COMMENT: ${{ github.event.comment.body }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: install deps
-        run: sudo apt-get update && apt-get install -y git gh
+      - name: setup
+        run: |
+          sudo apt-get update && sudo apt-get -y install git gh
+          touch $HOME/.git-credentials
+          touch $HOME/.gitconfig
+          git config --global credential.helper 'store --file=$HOME/.git-credentials'
+          echo -e "https://$GITHUB_TOKEN:$GITHUB_TOKEN@github.com/${REPO}" > $HOME/.git-credentials
 
       - name: Record data from issue comment event
         run: .github/chatops/record-fuzzing-stats.sh "$REPO" "$COMMENTID" "$COMMENT"
@@ -27,14 +35,22 @@ jobs:
   record-fuzzing-stats:
     if: ${{ github.event.type != 'IssueCommentEvent' }}
     runs-on: [self-hosted, gasp]
+    container: cache-registry.caas.intel.com/cache/library/ubuntu
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REPO: ${{ github.event.repository.full_name }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: install deps
-        run: sudo apt-get update && apt-get install -y git gh
+      - name: setup
+        run: |
+          sudo apt-get update && sudo apt-get -y install git gh
+          touch $HOME/.git-credentials
+          touch $HOME/.gitconfig
+          git config --global credential.helper 'store --file=$HOME/.git-credentials'
+          echo -e "https://$GITHUB_TOKEN:$GITHUB_TOKEN@github.com/${REPO}" > $HOME/.git-credentials
 
       - name: Record data from issue comment event
         run: .github/chatops/record-fuzzing-stats.sh "$REPO" "all"
