@@ -10,16 +10,16 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          ref: 'gh-pages'
+      - name: checkout
+        run: gh repo clone ${{ github.event.repository.full_name }} gh-pages -- --branch='gh-pages'
 
       - name: log data from comment
         shell: bash
         env:
           COMMENT: ${{ github.event.issue_comment.comment.body }}
         run: |
+          cd gh-pages
+
           LOOP=1
           INPUT=$(echo "$COMMENT" | awk '{ print NF; exit }')
 
