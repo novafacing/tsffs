@@ -16,8 +16,8 @@ jobs:
           ref: 'gh-pages'
 
       - name: log data from comment
+        shell: bash
         env:
-          COMMENTID: ${{ github.event.issue_comment.comment.id }}
           COMMENT: ${{ github.event.issue_comment.comment.body }}
         run: |
           LOOP=1
@@ -27,7 +27,7 @@ jobs:
           [[ $INPUT -lt 2 ]] && exit 0
 
           while [ $LOOP -le $INPUT ]; do
-            FIELD=$(echo "$COMMENT" | awk '{ print $LOOP }')
+            FIELD=$(echo "$COMMENT" | awk "{ print \$$LOOP }")
             COLUMN=$(echo "$FIELD" | awk -F'=' '{ print $1 }')
             DATA=$(echo "$FIELD" | awk -F'=' '{ print $2 }')
 
@@ -42,6 +42,8 @@ jobs:
 
           echo "${REPO},${DATE},${SOLUTIONS},${RUNTIME}" >> _data/log.csv
 
+      - name: save data
+        run: |
           git config --global user.name '${{ github.actor }}'
           git config --global user.email '${{ github.actor }}@github.com'
           git add _data/log.csv
