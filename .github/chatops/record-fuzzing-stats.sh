@@ -53,10 +53,10 @@ process_comment() {
 
 ###############################################################################
 
+cd gh-pages
+
 git config --global user.name '${{ github.actor }}'
 git config --global user.email '${{ github.actor }}@github.com'
-git fetch origin gh-pages --depth 1
-git checkout gh-pages
 
 if [ "$COMMENTID" != "all" ]; then
     process_comment "$REPO" "$COMMENTID" "$COMMENT"
