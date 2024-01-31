@@ -31,9 +31,9 @@ parse_comment() {
     [[ -z $SOLUTIONS ]] && return 1
     [[ -z $RUNTIME ]] && return 1
 
-    DATE=$(date -d @$DATE)
-    echo "${REPO},${DATE},${SOLUTIONS},${RUNTIME}"
-    echo "${REPO},${DATE},${SOLUTIONS},${RUNTIME}" >> _data/log.csv
+    HDATE=$(date -d @$DATE)
+    echo "${REPO},${DATE},${HDATE},${SOLUTIONS},${RUNTIME}"
+    echo "${REPO},${DATE},${HDATE},${SOLUTIONS},${RUNTIME}" >> _data/log.csv
 
     return 0
 }
