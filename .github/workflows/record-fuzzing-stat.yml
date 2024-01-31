@@ -14,10 +14,6 @@ jobs:
           git config --global user.name '${{ github.actor }}'
           git config --global user.email '${{ github.actor }}@github.com'
 
-      - name: test
-        run: |
-          jq '.' ${{ github.event.issue_comment }} || :
-
       - uses: actions/checkout@v4
         with:
           ref: 'gh-pages'
@@ -26,7 +22,7 @@ jobs:
       - name: log data from comment
         shell: bash
         env:
-          COMMENT: ${{ github.event.issue_comment.comment.body }}
+          COMMENT: ${{ github.event.comment.body }}
         run: |
           echo "Comment: $COMMENT"
           LOOP=1
@@ -60,7 +56,7 @@ jobs:
       - name: delete comment
         env:
           REPO: ${{ github.event.repository.full_name }}
-          COMMENTID: ${{ github.event.issue_comment.comment.id }}
+          COMMENTID: ${{ github.event.comment.id }}
         run: |
           gh api --method DELETE \
             -H "Accept: application/vnd.github+json" \
