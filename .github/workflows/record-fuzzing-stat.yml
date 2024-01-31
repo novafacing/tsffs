@@ -16,6 +16,7 @@ jobs:
           ref: 'gh-pages'
 
       - name: log data from comment
+        env:
           COMMENTID: ${{ github.event.issue_comment.comment.id }}
           COMMENT: ${{ github.event.issue_comment.comment.body }}
         run: |
