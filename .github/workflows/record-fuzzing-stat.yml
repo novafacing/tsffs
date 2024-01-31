@@ -24,12 +24,13 @@ jobs:
         env:
           COMMENT: ${{ github.event.comment.body }}
         run: |
-          echo "Comment: $COMMENT"
           LOOP=1
           INPUT=$(echo "$COMMENT" | awk '{ print NF; exit }')
 
-          [[ $(echo "$COMMENT" | awk '{ print $1 }') != "/fuzzed" ]] && exit 0
-          [[ $INPUT -lt 2 ]] && exit 0
+          echo "Comment: $COMMENT, inputs: $INPUT"
+
+          [[ $(echo "$COMMENT" | awk '{ print $1 }') != "/fuzzed" ]] && echo "No magic command found" && exit 1
+          [[ $INPUT -lt 2 ]] && echo "Not enough inputs" && exit 1
 
           while [ $LOOP -le $INPUT ]; do
             FIELD=$(echo "$COMMENT" | awk "{ print \$$LOOP }")
@@ -41,10 +42,10 @@ jobs:
             [[ $COLUMN == "solutions" ]] && SOLUTIONS=$DATA
             [[ $COLUMN == "runtime" ]] && RUNTIME=$DATA
 
-
-            LOOP=$(( $LOOP + 1 ))
+            LOOP=$(( $LOOP + 1 )) || :
           done
 
+          echo "${REPO},${DATE},${SOLUTIONS},${RUNTIME}"
           echo "${REPO},${DATE},${SOLUTIONS},${RUNTIME}" >> _data/log.csv
 
       - name: save data
