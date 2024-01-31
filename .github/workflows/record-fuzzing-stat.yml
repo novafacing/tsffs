@@ -42,7 +42,7 @@ jobs:
             LOOP=$(( $LOOP + 1 )) || :
           done
 
-          echo "${REPO},${DATE},${SOLUTIONS},${RUNTIME}"
+          DATE=$(date -d @$DATE)
           echo "${REPO},${DATE},${SOLUTIONS},${RUNTIME}" >> _data/log.csv
 
       - name: save data
