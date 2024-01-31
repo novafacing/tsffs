@@ -14,6 +14,10 @@ jobs:
           git config --global user.name '${{ github.actor }}'
           git config --global user.email '${{ github.actor }}@github.com'
 
+      - name: test
+        run: |
+          jq '.' ${{ github.event.issue_comment }} || :
+
       - uses: actions/checkout@v4
         with:
           ref: 'gh-pages'
@@ -24,6 +28,7 @@ jobs:
         env:
           COMMENT: ${{ github.event.issue_comment.comment.body }}
         run: |
+          echo "Comment: $COMMENT"
           LOOP=1
           INPUT=$(echo "$COMMENT" | awk '{ print NF; exit }')
 
