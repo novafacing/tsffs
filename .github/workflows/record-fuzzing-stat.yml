@@ -1,9 +1,10 @@
 name: record-fuzzing-stat
 on:
-  repository_dispatch:
-    types: [fuzzed-command]
+  issue_comment:
+    types: [created]
 jobs:
   record-fuzzing-stat:
+    if: ${{ github.event.issue.number == 70 }}
     runs-on: [self-hosted, gasp]
     container: cache-registry.caas.intel.com/cache/library/ubuntu
     env:
@@ -15,12 +16,29 @@ jobs:
           ref: 'gh-pages'
 
       - name: log data from comment
-        env:
-          REPO: ${{ github.event.client_payload.slash_command.args.named.repo }}
-          DATE: ${{ github.event.client_payload.slash_command.args.named.date }}
-          SOLUTIONS: ${{ github.event.client_payload.slash_command.args.named.solutions }}
-          RUNTIME: ${{ github.event.client_payload.slash_command.args.named.runtime }}
+          COMMENTID: ${{ github.event.issue_comment.comment.id }}
+          COMMENT: ${{ github.event.issue_comment.comment.body }}
         run: |
+          LOOP=1
+          INPUT=$(echo "$COMMENT" | awk '{ print NF; exit }')
+
+          [[ $(echo "$COMMENT" | awk '{ print $1 }') != "/fuzzed" ]] && exit 0
+          [[ $INPUT -lt 2 ]] && exit 0
+
+          while [ $LOOP -le $INPUT ]; do
+            FIELD=$(echo "$COMMENT" | awk '{ print $LOOP }')
+            COLUMN=$(echo "$FIELD" | awk -F'=' '{ print $1 }')
+            DATA=$(echo "$FIELD" | awk -F'=' '{ print $2 }')
+
+            [[ $COLUMN == "repo" ]] && REPO=$DATA
+            [[ $COLUMN == "date" ]] && DATE=$DATA
+            [[ $COLUMN == "solutions" ]] && SOLUTIONS=$DATA
+            [[ $COLUMN == "runtime" ]] && RUNTIME=$DATA
+
+
+            LOOP=$(( $LOOP + 1 ))
+          done
+
           echo "${REPO},${DATE},${SOLUTIONS},${RUNTIME}" >> data/log.csv
 
           git config --global user.name '${{ github.actor }}'
@@ -31,8 +49,8 @@ jobs:
 
       - name: delete comment
         env:
-          REPO: ${{ github.event.client_payload.github.payload.repository.full_name }}
-          COMMENTID: ${{ github.event.client_payload.github.payload.comment.id }}
+          REPO: ${{ github.event.repository.full_name }}
+          COMMENTID: ${{ github.event.issue_comment.comment.id }}
         run: |
           gh api --method DELETE \
             -H "Accept: application/vnd.github+json" \
