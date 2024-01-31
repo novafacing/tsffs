@@ -17,10 +17,6 @@ jobs:
       COMMENTID: ${{ github.event.comment.id }}
       COMMENT: ${{ github.event.comment.body }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: setup
         run: |
           apt-get update && apt-get -y install git gh
@@ -28,6 +24,10 @@ jobs:
           touch $HOME/.gitconfig
           git config --global credential.helper 'store --file=$HOME/.git-credentials'
           echo -e "https://$GITHUB_TOKEN:$GITHUB_TOKEN@github.com/${REPO}" > $HOME/.git-credentials
+
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Record data from issue comment event
         run: .github/chatops/record-fuzzing-stats.sh "$REPO" "$COMMENTID" "$COMMENT"
@@ -40,10 +40,6 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REPO: ${{ github.event.repository.full_name }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: setup
         run: |
           apt-get update && apt-get -y install git gh
@@ -51,6 +47,10 @@ jobs:
           touch $HOME/.gitconfig
           git config --global credential.helper 'store --file=$HOME/.git-credentials'
           echo -e "https://$GITHUB_TOKEN:$GITHUB_TOKEN@github.com/${REPO}" > $HOME/.git-credentials
+
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Record data from issue comment event
         run: .github/chatops/record-fuzzing-stats.sh "$REPO" "all"
