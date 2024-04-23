@@ -8,15 +8,14 @@
   SPDX-License-Identifier: BSD-2-Clause-Patent
 **/
 
+#include <Guid/SmmLockBox.h>
 #include <Library/BaseMemoryLib.h>
+#include <Library/LockBoxLib.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/PcdLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiLib.h>
 #include <Uefi.h>
-
-#include <Guid/SmmLockBox.h>
-#include <Library/LockBoxLib.h>
 
 #include "tsffs.h"
 
@@ -30,7 +29,8 @@
 **/
 EFI_STATUS
 EFIAPI
-HelloWorldDxeInitialize(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTable) {
+HelloWorldDxeInitialize(IN EFI_HANDLE ImageHandle,
+                        IN EFI_SYSTEM_TABLE *SystemTable) {
   Print(L"Initializing driver...");
   UINTN input_max_size = 64;
   UINTN input_size = input_max_size;
@@ -47,12 +47,12 @@ HelloWorldDxeInitialize(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTa
   GUID lockbox_guid;
   CopyMem(&lockbox_guid, input, sizeof(lockbox_guid));
 
-  Print(L"Saving for GUID %g with input length %d\n", &lockbox_guid, input_size);
+  // Print(L"Saving for GUID %g with input length %d\n", &lockbox_guid,
+  //       input_size);
 
-  EFI_STATUS Status = SaveLockBox(&lockbox_guid, input, input_size);
+  /* EFI_STATUS Status = */ SaveLockBox(&lockbox_guid, input, input_size);
 
-  Print(L"Got status from save: %d\n", Status);
-
+  // Print(L"Got status from save: %d\n", Status);
 
   HARNESS_STOP();
 
