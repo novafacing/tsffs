@@ -5,9 +5,10 @@ week concerning the boot logo parser in many vendors BIOS images called
 [LogoFAIL](https://binarly.io/posts/finding_logofail_the_dangers_of_image_parsing_during_system_boot/).
 In a [press release](https://min.news/en/tech/128c34878b2b582065c1e05379912294.html) the
 vulnerability finders noted that "Our fuzz testing and subsequent vulnerability triage
-results clearly indicate that these image parsers were never tested by IBV or OEM". This
-[may not be accurate](https://github.com/tianocore/edk2-staging/tree/HBFA/HBFA/UefiHostFuzzTestCasePkg/TestCase/MdeModulePkg/Library/BaseBmpSupportLib),
-but even so let's change that for our tutorial platform and get it fuzzed!
+results clearly indicate that these image parsers were never tested by IBV or OEM".
+Unlike the findings, [some](https://github.com/tianocore/edk2-staging/tree/HBFA/HBFA/UefiHostFuzzTestCasePkg/TestCase/MdeModulePkg/Library/BaseBmpSupportLib),
+have been fuzzed, but even so let's get our platform harnessed -- all we need to do is
+add the vulnerability ourselves!
 
 ## Writing a Harness
 
@@ -129,7 +130,7 @@ We'll add our harness in the form of a patch to `edk2-platforms`.
 Our `Dockerfile` from [previously](building-bios.md) just needs a couple modifications.
 
 First, we need to copy
-[tsffs-gcc-x86_64.h](https://github.com/intel/tsffs/blob/main/harness/tsffs-gcc-x86_64.h)
+[tsffs.h](https://github.com/intel/tsffs/blob/main/harness/tsffs.h)
 from the `harness` directory of the [repository](https://github.com/intel/tsffs/) and
 put it next to our `Dockerfile`. Then, just before the last `RUN` step (where we run
 `build_bios.py`), we'll add the following to create and apply our patch and copy the
@@ -153,7 +154,7 @@ index 9cea5f4665..00815adba2 100644
  #include <IndustryStandard/Bmp.h>
  #include <Protocol/BootLogo.h>
  
-+#include "tsffs-gcc-x86_64.h"
++#include "tsffs.h"
  /**
    Convert a *.BMP graphics image to a GOP blt buffer. If a NULL Blt buffer
    is passed in a GopBlt buffer will be allocated by this routine. If a GopBlt
@@ -231,7 +232,7 @@ index 9cea5f4665..00815adba2 100644
 
 EOF
 
-COPY tsffs-gcc-x86_64.h /workspace/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/Library/DxeLogoLib/tsffs-gcc-x86_64.h
+COPY tsffs.h /workspace/edk2-platforms/Platform/Intel/SimicsOpenBoardPkg/Library/DxeLogoLib/tsffs.h
 
 RUN git -C /workspace/edk2-platforms apply /tmp/edk2-platforms.patch
 ```

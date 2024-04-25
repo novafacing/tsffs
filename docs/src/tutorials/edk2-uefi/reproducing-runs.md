@@ -27,7 +27,7 @@ simics> !hexdump -C corpus/4385dc33f608888d | head -n 2
 We can tell the fuzzer that we want to run with this specific input by using:
 
 ```txt
-simics> @tsffs.iface.tsffs.repro("%simics%/corpus/4385dc33f608888d")
+simics> @tsffs.iface.fuzz.repro("%simics%/corpus/4385dc33f608888d")
 ```
 
 The simulation will run once with this input, then output a message that you can replay
@@ -42,5 +42,5 @@ and more! Check out the SIMICS documentation and explore all the deep debugging
 capabilities that SIMICS offers. When you're done exploring, run `c` to continue.
 
 You can change the testcase you are examining by choosing a different one with
-`tsffs.iface.tsffs.repro`, but you cannot resume fuzzing after entering repro mode due
+`tsffs.iface.fuzz.repro`, but you cannot resume fuzzing after entering repro mode due
 to inconsistencies with the simulated system clock.

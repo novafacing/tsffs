@@ -1,3 +1,6 @@
+// Copyright (C) 2024 Intel Corporation
+// SPDX-License-Identifier: Apache-2.0
+
 #include <fcntl.h>
 #include <linux/ioctl.h>
 #include <stdio.h>
@@ -5,7 +8,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#include "tsffs-gcc-riscv64.h"
+#include "tsffs.h"
 
 #define MAJOR_NUM 100
 #define IOCTL_SET_MSG _IOW(MAJOR_NUM, 0, char *)
