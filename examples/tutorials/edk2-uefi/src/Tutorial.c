@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 
 #include <Library/BaseCryptLib.h>
@@ -8,7 +8,7 @@
 #include <Library/UefiLib.h>
 #include <Uefi.h>
 
-#include "tsffs-gcc-x86_64.h"
+#include "tsffs.h"
 
 void hexdump(UINT8 *buf, UINTN size) {
   for (UINTN i = 0; i < size; i++) {
