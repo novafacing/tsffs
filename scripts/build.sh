@@ -3,6 +3,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+set -e
 
 LLD_URL="https://releases.llvm.org/5.0.2/lld-5.0.2.src.tar.xz"
 CFE_URL="https://releases.llvm.org/5.0.2/cfe-5.0.2.src.tar.xz"

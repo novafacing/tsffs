@@ -3,6 +3,8 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+set -e
+
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
 if ! command -v cargo-llvm-cov &>/dev/null; then
@@ -12,4 +14,4 @@ fi
 
 pushd "${SCRIPT_DIR}" || exit 1
 
-cargo llvm-cov --features=6.0.169
+cargo llvm-cov

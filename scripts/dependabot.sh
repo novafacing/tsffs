@@ -3,6 +3,8 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+set -e
+
 if ! command -v jq &>/dev/null; then
     echo "jq must be installed. Install it with your package manager"
     exit 1

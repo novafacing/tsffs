@@ -10,7 +10,7 @@
 set -e
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
-IMAGE_NAME="edk2-build-tsffs-gcc-x86_64-test"
+IMAGE_NAME="edk2-build-tsffs-gcc-x86_64-test-timeout"
 CONTAINER_UID=$(echo "${RANDOM}" | sha256sum | head -c 8)
 CONTAINER_NAME="${IMAGE_NAME}-tmp-${CONTAINER_UID}"
 

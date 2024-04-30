@@ -5,6 +5,8 @@
 
 #Run workflows locally using act
 
+set -e
+
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 WORKFLOW_FILE="${SCRIPT_DIR}/../.github/workflows/ci.yml"
 SECRETS_FILE="${SCRIPT_DIR}/../.secrets"

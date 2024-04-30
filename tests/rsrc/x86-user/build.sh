@@ -3,6 +3,8 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+set -e
+
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 CRAFF="${SCRIPT_DIR}/../../../bin/craff"
 CRAFF_FS="${SCRIPT_DIR}/../../../bin/craff-fs"

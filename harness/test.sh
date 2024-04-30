@@ -5,9 +5,9 @@
 
 # Compile test.c for each of x86, x86_64, riscv32, riscv64 architecture
 
-SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
-
 set -e
+
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
 "${SCRIPT_DIR}/build.sh"
 
