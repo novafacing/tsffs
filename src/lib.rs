@@ -89,6 +89,7 @@ pub(crate) mod haps;
 pub(crate) mod interfaces;
 pub(crate) mod log;
 pub(crate) mod magic;
+pub(crate) mod os;
 pub(crate) mod state;
 pub(crate) mod tracer;
 pub(crate) mod traits;
